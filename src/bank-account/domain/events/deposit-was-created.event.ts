@@ -1,5 +1,5 @@
 import { Transaction } from '../entities/transaction.entity';
-import { BaseEvent } from './base.event';
+import { BaseEvent } from '../../common/domain/base.event';
 
 type DepositWasCreateState = {
   transaction: Transaction;

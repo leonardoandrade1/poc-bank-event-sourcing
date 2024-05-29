@@ -1,5 +1,5 @@
 import crypto from 'node:crypto';
-import { BaseEvent } from 'src/bank-account/domain/events/base.event';
+import { BaseEvent } from './base.event';
 
 export abstract class AggregateRoot {
   public id: string;
