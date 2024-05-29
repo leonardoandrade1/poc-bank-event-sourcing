@@ -12,9 +12,13 @@ import {
 import { TransactionEntity } from './infra/repositories/typeorm/entities/transaction.entity';
 import { TransactionRepository } from './infra/repositories/transaction.repository';
 import { TransactionsController } from './infra/http/transactions/transactions.controller';
+import { CqrsModule } from '@nestjs/cqrs';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([BaseEventEntity, TransactionEntity])],
+  imports: [
+    CqrsModule.forRoot(),
+    TypeOrmModule.forFeature([BaseEventEntity, TransactionEntity]),
+  ],
   controllers: [AccountController, TransferController, TransactionsController],
   providers: [
     AccountEventStoreRepository,
