@@ -1,5 +1,5 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { TransferMoneyCommand } from 'src/bank-account/domain/commands/transfer-money.command';
+import { TransferMoneyCommand } from 'src/bank-account/domain/commands/transaction/transfer-money.command';
 import { AccountEventStoreRepository } from '../../../infra/repositories/account-event-store.repository';
 import { TransactionRepository } from '../../../infra/repositories/transaction.repository';
 import { Transaction } from 'src/bank-account/domain/entities/transaction.entity';

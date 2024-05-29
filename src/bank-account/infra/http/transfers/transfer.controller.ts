@@ -1,7 +1,7 @@
 import { Body, Controller, HttpCode, HttpStatus, Post } from '@nestjs/common';
 import { CommandBus } from '@nestjs/cqrs';
 import { ApiTags } from '@nestjs/swagger';
-import { TransferMoneyCommand } from 'src/bank-account/domain/commands/transfer-money.command';
+import { TransferMoneyCommand } from 'src/bank-account/domain/commands/transaction/transfer-money.command';
 import { Transaction } from 'src/bank-account/domain/entities/transaction.entity';
 import { CreateTransferDto } from './dto/create-transfer.dto';
 

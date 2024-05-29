@@ -18,6 +18,8 @@ import { CreateAccountDto } from './dto/create-account.dto';
 import { CreateDepositDto } from './dto/create-deposit.dto';
 import { CreateWithdrawDto } from './dto/create-withdraw.dto';
 import { TransactionRepository } from '../../repositories/transaction.repository';
+import { CommandBus } from '@nestjs/cqrs';
+import { CreateAccountCommand } from 'src/bank-account/domain/commands/account/create-account.command';
 
 // TODO: account
 // 1. accept create account request and return account number and branch
@@ -34,22 +36,15 @@ export class AccountController {
   constructor(
     private readonly accountEventStoreRepository: AccountEventStoreRepository,
     private readonly transactionRepository: TransactionRepository,
+    private readonly commandBus: CommandBus,
   ) {}
 
   @HttpCode(HttpStatus.ACCEPTED)
   @Post()
   async createAccount(@Body() body: CreateAccountDto) {
-    const accountNumber = faker.finance.accountNumber(6);
-    const accountBranch = faker.finance.accountNumber(4);
-    const account = Account.Create(
-      body.documentNumber,
-      accountNumber,
-      accountBranch,
+    const account = await this.commandBus.execute(
+      new CreateAccountCommand(body.documentNumber),
     );
-
-    await this.accountEventStoreRepository.save(account);
-    account.commitEvents();
-    // TODO: dispatch event to finish aacount register
 
     const dto = AccountDTO.FromAccount(account);
     return dto;
