@@ -1,4 +1,3 @@
-import { faker } from '@faker-js/faker';
 import {
   Body,
   Controller,
@@ -10,16 +9,16 @@ import {
   Patch,
   Post,
 } from '@nestjs/common';
+import { CommandBus } from '@nestjs/cqrs';
 import { ApiTags } from '@nestjs/swagger';
+import { CreateAccountCommand } from 'src/bank-account/domain/commands/account/create-account.command';
+import { DepositMoneyCommand } from 'src/bank-account/domain/commands/transaction/deposit-money.command';
 import { AccountDTO } from 'src/bank-account/infra/http/accounts/dto/account.dto';
-import { Account } from '../../../domain/entities/account.entity';
 import { AccountEventStoreRepository } from '../../repositories/account-event-store.repository';
+import { TransactionRepository } from '../../repositories/transaction.repository';
 import { CreateAccountDto } from './dto/create-account.dto';
 import { CreateDepositDto } from './dto/create-deposit.dto';
 import { CreateWithdrawDto } from './dto/create-withdraw.dto';
-import { TransactionRepository } from '../../repositories/transaction.repository';
-import { CommandBus } from '@nestjs/cqrs';
-import { CreateAccountCommand } from 'src/bank-account/domain/commands/account/create-account.command';
 
 // TODO: account
 // 1. accept create account request and return account number and branch
@@ -75,16 +74,15 @@ export class AccountController {
     @Param('accountNumber') accountNumber: string,
     @Body() body: CreateDepositDto,
   ) {
-    const account =
-      await this.accountEventStoreRepository.getFromAccountBranchAndNumber(
-        accountBranch,
-        accountNumber,
-      );
-    if (!account) throw new NotFoundException('Account not found');
-    const transaction = account.deposit(body.amount, body.description);
-    await this.accountEventStoreRepository.save(account);
-    await this.transactionRepository.save(transaction);
-    account.commitEvents();
+    const transaction = await this.commandBus.execute(
+      new DepositMoneyCommand({
+        amount: body.amount,
+        description: body.description,
+        documentNumber,
+        branch: accountBranch,
+        account: accountNumber,
+      }),
+    );
     return {
       transactionId: transaction.transactionId,
     };
