@@ -20,6 +20,7 @@ import { CreateAccountDto } from './dto/create-account.dto';
 import { CreateDepositDto } from './dto/create-deposit.dto';
 import { CreateWithdrawDto } from './dto/create-withdraw.dto';
 import { WithdrawMoneyCommand } from 'src/bank-account/domain/commands/transaction/withdraw-money.command';
+import { DisableAccountCommand } from 'src/bank-account/domain/commands/account/disable-account.command';
 
 // TODO: account
 // 1. accept create account request and return account number and branch
@@ -128,15 +129,8 @@ export class AccountController {
     @Param('accountBranch') accountBranch: string,
     @Param('accountNumber') accountNumber: string,
   ) {
-    const account =
-      await this.accountEventStoreRepository.getFromAccountBranchAndNumber(
-        accountBranch,
-        accountNumber,
-      );
-    if (!account) throw new NotFoundException('Account not found');
-    account.disable();
-    await this.accountEventStoreRepository.save(account);
-    account.commitEvents();
-    return;
+    await this.commandBus.execute(
+      new DisableAccountCommand(documentNumber, accountBranch, accountNumber),
+    );
   }
 }
