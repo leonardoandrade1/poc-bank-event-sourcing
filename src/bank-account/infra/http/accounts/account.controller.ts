@@ -19,6 +19,7 @@ import { TransactionRepository } from '../../repositories/transaction.repository
 import { CreateAccountDto } from './dto/create-account.dto';
 import { CreateDepositDto } from './dto/create-deposit.dto';
 import { CreateWithdrawDto } from './dto/create-withdraw.dto';
+import { WithdrawMoneyCommand } from 'src/bank-account/domain/commands/transaction/withdraw-money.command';
 
 // TODO: account
 // 1. accept create account request and return account number and branch
@@ -104,10 +105,15 @@ export class AccountController {
         accountNumber,
       );
     if (!account) throw new NotFoundException('Account not found');
-    const transaction = account.withdraw(body.amount, body.description);
-    await this.accountEventStoreRepository.save(account);
-    await this.transactionRepository.save(transaction);
-    account.commitEvents();
+    const transaction = await this.commandBus.execute(
+      new WithdrawMoneyCommand({
+        documentNumber,
+        branch: accountBranch,
+        account: accountNumber,
+        amount: body.amount,
+        description: body.description,
+      }),
+    );
     return {
       transactionId: transaction.transactionId,
     };
