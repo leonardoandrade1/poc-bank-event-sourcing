@@ -1,0 +1,7 @@
+export enum AccountStatus {
+  IN_ANALYSIS = 'IN_ANALYSIS',
+  ACTIVE = 'ACTIVE',
+  INATIVE = 'INATIVE',
+  DISABLED = 'DISABLED',
+  CLOSED = 'CLOSED',
+}

@@ -1,0 +1,49 @@
+version: '3'
+services:
+  db:
+    image: postgres:alpine
+    restart: always
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=postgres
+    # volumes:
+    #   - ./pgdata:/var/lib/postgresql/data
+    ports:
+      - '5432:5432'
+
+  # ## KAFKA AND KAFKA-UI
+  # zookeeper:
+  #   image: confluentinc/cp-zookeeper:7.0.1
+  #   environment:
+  #     ZOOKEEPER_CLIENT_PORT: 2181
+  #     ZOOKEEPER_TICK_TIME: 2000
+  # kafka:
+  #   image: confluentinc/cp-kafka:7.0.1
+  #   depends_on:
+  #     - zookeeper
+  #   ports:
+  #     - 29092:29092
+  #   environment:
+  #     KAFKA_BROKER_ID: 1
+  #     KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+  #     KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092,PLAINTEXT_HOST://localhost:29092
+  #     KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+  #     KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+  #     KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+  # kafka-ui:
+  #   image: provectuslabs/kafka-ui:latest
+  #   depends_on:
+  #     - kafka
+  #   ports:
+  #     - 8080:8080
+  #   environment:
+  #     KAFKA_CLUSTERS_0_NAME: local
+  #     KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:9092
+
+  # otel:
+  #   image: grafana/otel-lgtm
+  #   ports:
+  #     - 4317:4317 # OTLP gRPC receiver
+  #     - 4318:4318 # OTLP HTTP receiver
+  #     - 3001:3000
