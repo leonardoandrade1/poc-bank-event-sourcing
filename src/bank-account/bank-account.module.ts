@@ -13,6 +13,7 @@ import { TransactionEntity } from './infra/repositories/typeorm/entities/transac
 import { TransactionRepository } from './infra/repositories/transaction.repository';
 import { TransactionsController } from './infra/http/transactions/transactions.controller';
 import { CqrsModule } from '@nestjs/cqrs';
+import { CommandHandlers } from './application/handlers/commands';
 
 @Module({
   imports: [
@@ -28,6 +29,7 @@ import { CqrsModule } from '@nestjs/cqrs';
       provide: IEventPublisher,
       useClass: LoggerEventPublisher,
     },
+    ...CommandHandlers,
   ],
 })
 export class BankAccountModule {}
