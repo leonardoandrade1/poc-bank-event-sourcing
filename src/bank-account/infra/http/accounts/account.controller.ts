@@ -4,23 +4,21 @@ import {
   Get,
   HttpCode,
   HttpStatus,
-  NotFoundException,
   Param,
   Patch,
   Post,
 } from '@nestjs/common';
-import { CommandBus } from '@nestjs/cqrs';
+import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { ApiTags } from '@nestjs/swagger';
 import { CreateAccountCommand } from 'src/bank-account/domain/commands/account/create-account.command';
+import { DisableAccountCommand } from 'src/bank-account/domain/commands/account/disable-account.command';
 import { DepositMoneyCommand } from 'src/bank-account/domain/commands/transaction/deposit-money.command';
+import { WithdrawMoneyCommand } from 'src/bank-account/domain/commands/transaction/withdraw-money.command';
+import { FetchAccountByBranchAndNumberQuery } from 'src/bank-account/domain/queries/account/fetch-account-from-by-and-number.query';
 import { AccountDTO } from 'src/bank-account/infra/http/accounts/dto/account.dto';
-import { AccountEventStoreRepository } from '../../repositories/account-event-store.repository';
-import { TransactionRepository } from '../../repositories/transaction.repository';
 import { CreateAccountDto } from './dto/create-account.dto';
 import { CreateDepositDto } from './dto/create-deposit.dto';
 import { CreateWithdrawDto } from './dto/create-withdraw.dto';
-import { WithdrawMoneyCommand } from 'src/bank-account/domain/commands/transaction/withdraw-money.command';
-import { DisableAccountCommand } from 'src/bank-account/domain/commands/account/disable-account.command';
 
 // TODO: account
 // 1. accept create account request and return account number and branch
@@ -35,9 +33,8 @@ import { DisableAccountCommand } from 'src/bank-account/domain/commands/account/
 @Controller('document')
 export class AccountController {
   constructor(
-    private readonly accountEventStoreRepository: AccountEventStoreRepository,
-    private readonly transactionRepository: TransactionRepository,
     private readonly commandBus: CommandBus,
+    private readonly queryBus: QueryBus,
   ) {}
 
   @HttpCode(HttpStatus.ACCEPTED)
@@ -57,13 +54,9 @@ export class AccountController {
     @Param('accountBranch') accountBranch: string,
     @Param('accountNumber') accountNumber: string,
   ) {
-    const account =
-      await this.accountEventStoreRepository.getFromAccountBranchAndNumber(
-        accountBranch,
-        accountNumber,
-      );
-    if (!account) throw new NotFoundException('Account not found');
-
+    const account = await this.queryBus.execute(
+      new FetchAccountByBranchAndNumberQuery(accountBranch, accountNumber),
+    );
     const dto = AccountDTO.FromAccount(account);
     return dto;
   }
@@ -100,12 +93,6 @@ export class AccountController {
     @Param('accountNumber') accountNumber: string,
     @Body() body: CreateWithdrawDto,
   ) {
-    const account =
-      await this.accountEventStoreRepository.getFromAccountBranchAndNumber(
-        accountBranch,
-        accountNumber,
-      );
-    if (!account) throw new NotFoundException('Account not found');
     const transaction = await this.commandBus.execute(
       new WithdrawMoneyCommand({
         documentNumber,

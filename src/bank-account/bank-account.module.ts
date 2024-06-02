@@ -14,6 +14,7 @@ import { TransactionRepository } from './infra/repositories/transaction.reposito
 import { TransactionsController } from './infra/http/transactions/transactions.controller';
 import { CqrsModule } from '@nestjs/cqrs';
 import { CommandHandlers } from './application/handlers/commands';
+import { QueryHandlers } from './application/handlers/queries';
 
 @Module({
   imports: [
@@ -30,6 +31,7 @@ import { CommandHandlers } from './application/handlers/commands';
       useClass: LoggerEventPublisher,
     },
     ...CommandHandlers,
+    ...QueryHandlers,
   ],
 })
 export class BankAccountModule {}
