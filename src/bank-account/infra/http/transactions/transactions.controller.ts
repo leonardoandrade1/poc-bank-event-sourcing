@@ -12,11 +12,16 @@ import { Response } from 'express';
 import { Account } from 'src/bank-account/domain/entities/account.entity';
 import { TransactionRepository } from '../../repositories/transaction.repository';
 import { TransactionDTO } from './dto/transaction.dto';
+import { QueryBus } from '@nestjs/cqrs';
+import { FetchAllTransactionsByAccountBranchAndNumberQuery } from 'src/bank-account/domain/queries/transaction/fetch-all-transactions-by-account-branch-and-number.query';
 
 @ApiTags('Transaction')
 @Controller('transactions')
 export class TransactionsController {
-  constructor(private readonly transactionRepository: TransactionRepository) {}
+  constructor(
+    private readonly transactionRepository: TransactionRepository,
+    private readonly queryBus: QueryBus,
+  ) {}
 
   @Get('/branch/:accountBranch/account/:accountNumber')
   async fetchAllTransactions(
@@ -24,10 +29,12 @@ export class TransactionsController {
     @Param('accountNumber') accountNumber: string,
     @Res() res: Response,
   ) {
-    const transactions =
-      await this.transactionRepository.fetchAllTransactionsFromAggregate(
-        Account.GenerateAggregateId(accountNumber, accountBranch),
-      );
+    const transactions = await this.queryBus.execute(
+      new FetchAllTransactionsByAccountBranchAndNumberQuery(
+        accountBranch,
+        accountNumber,
+      ),
+    );
 
     if (!transactions.length) {
       return res.status(HttpStatus.NO_CONTENT).send();
