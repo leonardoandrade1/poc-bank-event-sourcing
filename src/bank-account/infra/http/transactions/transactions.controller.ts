@@ -1,27 +1,16 @@
-import {
-  BadRequestException,
-  Controller,
-  Get,
-  HttpStatus,
-  NotFoundException,
-  Param,
-  Res,
-} from '@nestjs/common';
+import { Controller, Get, HttpStatus, Param, Res } from '@nestjs/common';
+import { QueryBus } from '@nestjs/cqrs';
 import { ApiTags } from '@nestjs/swagger';
 import { Response } from 'express';
-import { Account } from 'src/bank-account/domain/entities/account.entity';
-import { TransactionRepository } from '../../repositories/transaction.repository';
-import { TransactionDTO } from './dto/transaction.dto';
-import { QueryBus } from '@nestjs/cqrs';
 import { FetchAllTransactionsByAccountBranchAndNumberQuery } from 'src/bank-account/domain/queries/transaction/fetch-all-transactions-by-account-branch-and-number.query';
+import { FetchTransactionByIdQuery } from 'src/bank-account/domain/queries/transaction/fetch-transaction-by-id.query';
+import { TransactionDTO } from './dto/transaction.dto';
+import { Transaction } from 'src/bank-account/domain/entities/transaction.entity';
 
 @ApiTags('Transaction')
 @Controller('transactions')
 export class TransactionsController {
-  constructor(
-    private readonly transactionRepository: TransactionRepository,
-    private readonly queryBus: QueryBus,
-  ) {}
+  constructor(private readonly queryBus: QueryBus) {}
 
   @Get('/branch/:accountBranch/account/:accountNumber')
   async fetchAllTransactions(
@@ -29,7 +18,10 @@ export class TransactionsController {
     @Param('accountNumber') accountNumber: string,
     @Res() res: Response,
   ) {
-    const transactions = await this.queryBus.execute(
+    const transactions = await this.queryBus.execute<
+      FetchAllTransactionsByAccountBranchAndNumberQuery,
+      Array<Transaction>
+    >(
       new FetchAllTransactionsByAccountBranchAndNumberQuery(
         accountBranch,
         accountNumber,
@@ -55,19 +47,16 @@ export class TransactionsController {
     @Param('accountNumber') accountNumber: string,
     @Param('transactionId') transactionId: string,
   ) {
-    const transaction =
-      await this.transactionRepository.fetchTransaction(transactionId);
-    if (!transaction) throw new NotFoundException('transaction not found');
-    const accountAggregate = Account.GenerateAggregateId(
-      accountNumber,
-      accountBranch,
+    const transaction = await this.queryBus.execute<
+      FetchAllTransactionsByAccountBranchAndNumberQuery,
+      Transaction
+    >(
+      new FetchTransactionByIdQuery(
+        accountBranch,
+        accountNumber,
+        transactionId,
+      ),
     );
-
-    if (!transaction.belongsTo(accountAggregate)) {
-      throw new BadRequestException(
-        'Cannot get transactions that belongs to another account',
-      );
-    }
 
     return TransactionDTO.FromTransaction(transaction);
   }
