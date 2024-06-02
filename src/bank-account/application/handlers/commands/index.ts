@@ -1,8 +1,8 @@
-import { CreateAccountCommandHandler } from './create-account.handler';
-import { TransferMoneyCommandHandler } from './transfer-money.handler';
-import { DepositMoneyCommandHandler } from './deposit-money.handler';
-import { WithdrawMoneyCommandHandler } from './withdraw-money.handler';
-import { DisableAccountCommandHandler } from './disable-account.handler';
+import { CreateAccountCommandHandler } from './account/create-account.handler';
+import { TransferMoneyCommandHandler } from './transaction/transfer-money.handler';
+import { DepositMoneyCommandHandler } from './transaction/deposit-money.handler';
+import { WithdrawMoneyCommandHandler } from './transaction/withdraw-money.handler';
+import { DisableAccountCommandHandler } from './account/disable-account.handler';
 
 export const CommandHandlers = [
   TransferMoneyCommandHandler,
