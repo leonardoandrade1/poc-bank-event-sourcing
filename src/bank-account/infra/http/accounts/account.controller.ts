@@ -19,6 +19,8 @@ import { AccountDTO } from 'src/bank-account/infra/http/accounts/dto/account.dto
 import { CreateAccountDto } from './dto/create-account.dto';
 import { CreateDepositDto } from './dto/create-deposit.dto';
 import { CreateWithdrawDto } from './dto/create-withdraw.dto';
+import { Account } from 'src/bank-account/domain/entities/account.entity';
+import { Transaction } from 'src/bank-account/domain/entities/transaction.entity';
 
 // TODO: account
 // 1. accept create account request and return account number and branch
@@ -40,9 +42,10 @@ export class AccountController {
   @HttpCode(HttpStatus.ACCEPTED)
   @Post()
   async createAccount(@Body() body: CreateAccountDto) {
-    const account = await this.commandBus.execute(
-      new CreateAccountCommand(body.documentNumber),
-    );
+    const account = await this.commandBus.execute<
+      CreateAccountCommand,
+      Account
+    >(new CreateAccountCommand(body.documentNumber));
 
     const dto = AccountDTO.FromAccount(account);
     return dto;
@@ -54,9 +57,10 @@ export class AccountController {
     @Param('accountBranch') accountBranch: string,
     @Param('accountNumber') accountNumber: string,
   ) {
-    const account = await this.queryBus.execute(
-      new FetchAccountByBranchAndNumberQuery(accountBranch, accountNumber),
-    );
+    const account = await this.queryBus.execute<
+      FetchAccountByBranchAndNumberQuery,
+      Account
+    >(new FetchAccountByBranchAndNumberQuery(accountBranch, accountNumber));
     const dto = AccountDTO.FromAccount(account);
     return dto;
   }
@@ -69,7 +73,10 @@ export class AccountController {
     @Param('accountNumber') accountNumber: string,
     @Body() body: CreateDepositDto,
   ) {
-    const transaction = await this.commandBus.execute(
+    const transaction = await this.commandBus.execute<
+      DepositMoneyCommand,
+      Transaction
+    >(
       new DepositMoneyCommand({
         amount: body.amount,
         description: body.description,
@@ -93,7 +100,10 @@ export class AccountController {
     @Param('accountNumber') accountNumber: string,
     @Body() body: CreateWithdrawDto,
   ) {
-    const transaction = await this.commandBus.execute(
+    const transaction = await this.commandBus.execute<
+      WithdrawMoneyCommand,
+      Transaction
+    >(
       new WithdrawMoneyCommand({
         documentNumber,
         branch: accountBranch,
@@ -116,7 +126,7 @@ export class AccountController {
     @Param('accountBranch') accountBranch: string,
     @Param('accountNumber') accountNumber: string,
   ) {
-    await this.commandBus.execute(
+    await this.commandBus.execute<DisableAccountCommand, never>(
       new DisableAccountCommand(documentNumber, accountBranch, accountNumber),
     );
   }
