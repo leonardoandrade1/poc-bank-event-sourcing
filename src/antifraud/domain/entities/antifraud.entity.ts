@@ -92,6 +92,9 @@ export class Antifraud {
       case AntifraudType.ACCOUNT:
         this.analyzeAccount();
         break;
+      case AntifraudType.TRANSFER:
+        this.analyzeTransfer();
+        break;
       default:
         throw 'antifraud type not implemented';
     }
@@ -113,6 +116,17 @@ export class Antifraud {
     const shouldApprove = parseInt(this._payload.documentNumber) % 2 === 0;
     if (!shouldApprove) {
       this.reprove('Reproved by compliance rules');
+      return;
+    }
+    this.approve();
+    return;
+  }
+
+  private analyzeTransfer(): void {
+    const shouldApprove =
+      parseInt(this._payload.receiver.documentNumber) % 2 === 0;
+    if (!shouldApprove) {
+      this.reprove('Reproved transfer by compliance rules');
       return;
     }
     this.approve();
