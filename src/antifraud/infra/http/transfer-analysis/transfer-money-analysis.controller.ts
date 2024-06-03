@@ -1,31 +1,32 @@
 import { Body, Controller, Post } from '@nestjs/common';
+import { CommandBus } from '@nestjs/cqrs';
 import { ApiTags } from '@nestjs/swagger';
-import {
-  AnalysisStatus,
-  AntifraudType,
-} from 'src/antifraud/domain/entities/antifraud.entity';
+import { TransferMoneyCommand } from 'src/antifraud/domain/command/transfer-money.command';
 import { TransferMoneyDTO } from './dto/transfer-money.dto';
 
 @ApiTags('Antifraud')
 @Controller('transfer-analysis')
 export class AntifraudTransferAnalysisController {
-  private transferMoneyAnalysisMap: Map<string, any> = new Map();
-  constructor() {}
+  constructor(private readonly commandBus: CommandBus) {}
 
   @Post()
   async transferMoney(@Body() body: TransferMoneyDTO) {
-    const alreadyAnalyzed = this.transferMoneyAnalysisMap.get(
-      body.transactionId,
+    const analysis = await this.commandBus.execute(
+      new TransferMoneyCommand({
+        transactionId: body.transactionId,
+        amount: body.amount,
+        sender: {
+          documentNumber: body.sender.documentNumber,
+          accountBranch: body.sender.branch,
+          accountNumber: body.sender.account,
+        },
+        receiver: {
+          documentNumber: body.receiver.documentNumber,
+          accountBranch: body.receiver.branch,
+          accountNumber: body.receiver.account,
+        },
+      }),
     );
-    if (alreadyAnalyzed) return alreadyAnalyzed;
-    const shouldApprove = parseInt(body.receiver.documentNumber) % 2 === 0;
-    const analysis = {
-      transaction: body,
-      type: AntifraudType.TRANSFER,
-      status: shouldApprove ? AnalysisStatus.APPROVED : AnalysisStatus.REPROVED,
-      reason: shouldApprove ? '' : 'Reproved by compliance rule',
-    };
-    this.transferMoneyAnalysisMap.set(body.transactionId, analysis);
     return analysis;
   }
 }
