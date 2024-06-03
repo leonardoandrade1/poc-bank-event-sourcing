@@ -1,35 +1,25 @@
 import { Body, Controller, Post } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { AccountCreationDTO } from './dto/account-creation.dto';
+import { CommandBus } from '@nestjs/cqrs';
+import { AccountCreationCommand } from 'src/antifraud/domain/command/account-creation.command';
 
 @ApiTags('Antifraud')
 @Controller('account-creation-analysis')
 export class AntifraudAccountCreationAnalysisController {
   private accountAnalysisMap: Map<string, object> = new Map();
 
-  constructor() {}
+  constructor(private readonly commandBus: CommandBus) {}
 
   @Post()
   async accountCreation(@Body() body: AccountCreationDTO) {
-    const previousAnalysis = this.accountAnalysisMap.get(body.documentNumber);
-    if (previousAnalysis) return previousAnalysis;
-
-    let status = 'Approved';
-    let reason = '';
-    const shouldApprove = parseInt(body.documentNumber) % 2 === 0;
-    if (!shouldApprove) {
-      status = 'Reproved';
-      reason = 'Reproved by compliance rules';
-    }
-    const result = {
-      accountNumber: body.accountNumber,
-      accountBranch: body.accountBranch,
-      documentNumber: body.documentNumber,
-      analyzedAt: new Date().toISOString(),
-      status,
-      reason,
-    };
-    this.accountAnalysisMap.set(body.documentNumber, result);
-    return result;
+    const accountCreationResult = await this.commandBus.execute(
+      new AccountCreationCommand(
+        body.accountBranch,
+        body.accountNumber,
+        body.documentNumber,
+      ),
+    );
+    return accountCreationResult;
   }
 }
