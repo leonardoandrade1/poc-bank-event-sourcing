@@ -23,7 +23,7 @@ export class Antifraud {
     this._id = id;
   }
 
-  private static GenerateAccountCreationId(
+  public static GenerateAccountCreationId(
     documentNumber: string,
     accountBranch: string,
     accountNumber: string,

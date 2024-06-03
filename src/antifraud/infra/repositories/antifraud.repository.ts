@@ -22,6 +22,7 @@ export class AntifraudRepository {
         antifraudId,
       },
     });
+    if (!model) return undefined;
     return Antifraud.FromModel(model);
   }
 }

@@ -34,7 +34,7 @@ export class AntifraudEntity {
     entity.antifraudId = model.id;
     entity.antifraudType = model.type;
     entity.status = model.status;
-    entity.reason = model.status;
+    entity.reason = model.reason;
     entity.analyzedAt = model.analyzedAt;
     entity.payload = model.payload;
     return entity;
