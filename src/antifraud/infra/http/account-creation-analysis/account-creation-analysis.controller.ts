@@ -7,13 +7,14 @@ import { AccountCreationCommand } from 'src/antifraud/domain/command/account-cre
 @ApiTags('Antifraud')
 @Controller('account-creation-analysis')
 export class AntifraudAccountCreationAnalysisController {
-  private accountAnalysisMap: Map<string, object> = new Map();
-
   constructor(private readonly commandBus: CommandBus) {}
 
   @Post()
   async accountCreation(@Body() body: AccountCreationDTO) {
-    const accountCreationResult = await this.commandBus.execute(
+    const accountCreationResult = await this.commandBus.execute<
+      AccountCreationCommand,
+      unknown
+    >(
       new AccountCreationCommand(
         body.accountBranch,
         body.accountNumber,
