@@ -2,7 +2,7 @@ import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AccountController } from './infra/http/accounts/account.controller';
 import { AccountEventStoreRepository } from './infra/repositories/account-event-store.repository';
-import { BaseEventEntity } from './infra/repositories/typeorm/entities/base-event.entity';
+import { BaseEventModel } from './infra/repositories/typeorm/entities/base-event.entity';
 import { TransferController } from './infra/http/transfers/transfer.controller';
 import {
   EventPublisher,
@@ -19,7 +19,7 @@ import { QueryHandlers } from './application/handlers/queries';
 @Module({
   imports: [
     CqrsModule.forRoot(),
-    TypeOrmModule.forFeature([BaseEventEntity, TransactionEntity]),
+    TypeOrmModule.forFeature([BaseEventModel, TransactionEntity]),
   ],
   controllers: [AccountController, TransferController, TransactionsController],
   providers: [

@@ -3,7 +3,7 @@ import { Column, Entity, PrimaryGeneratedColumn, Unique } from 'typeorm';
 
 @Entity()
 @Unique(['aggregateId', 'aggregateVersion'])
-export class BaseEventEntity {
+export class BaseEventModel {
   @PrimaryGeneratedColumn({ type: 'bigint' })
   id: number;
 
@@ -22,19 +22,19 @@ export class BaseEventEntity {
   @Column({ type: 'json' })
   state: object;
 
-  static CreateFromEvent<T extends BaseEvent>(event: T): BaseEventEntity {
-    const baseEventEntity = new BaseEventEntity();
-    baseEventEntity.aggregateId = event.aggregateId;
-    baseEventEntity.aggregateVersion = event.aggregateVersion;
-    baseEventEntity.eventName = event.eventName;
-    baseEventEntity.created = event.created;
-    baseEventEntity.state = event.state;
-    return baseEventEntity;
+  static CreateFromEvent<T extends BaseEvent>(event: T): BaseEventModel {
+    const model = new BaseEventModel();
+    model.aggregateId = event.aggregateId;
+    model.aggregateVersion = event.aggregateVersion;
+    model.eventName = event.eventName;
+    model.created = event.created;
+    model.state = event.state;
+    return model;
   }
 
   static CreateFromEvents<T extends BaseEvent>(
     events: T[],
-  ): Array<BaseEventEntity> {
-    return events.map(BaseEventEntity.CreateFromEvent);
+  ): Array<BaseEventModel> {
+    return events.map(BaseEventModel.CreateFromEvent);
   }
 }

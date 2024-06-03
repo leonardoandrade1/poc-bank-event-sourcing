@@ -3,14 +3,14 @@ import { EventStoreBaseRepository } from './event-store-base.repository';
 import { Account } from 'src/bank-account/domain/entities/account.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { BaseEventEntity } from './typeorm/entities/base-event.entity';
+import { BaseEventModel } from './typeorm/entities/base-event.entity';
 import { EventPublisher } from '../publisher/base-event-publisher';
 
 @Injectable()
 export class AccountEventStoreRepository extends EventStoreBaseRepository {
   constructor(
-    @InjectRepository(BaseEventEntity)
-    eventRepository: Repository<BaseEventEntity>,
+    @InjectRepository(BaseEventModel)
+    eventRepository: Repository<BaseEventModel>,
     private readonly eventPublisher: EventPublisher,
   ) {
     super(eventRepository);

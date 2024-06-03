@@ -1,18 +1,18 @@
 import { LessThan, Repository } from 'typeorm';
-import { BaseEventEntity } from './typeorm/entities/base-event.entity';
+import { BaseEventModel } from './typeorm/entities/base-event.entity';
 import { BaseEvent } from 'src/bank-account/common/domain/base.event';
 
 export abstract class EventStoreBaseRepository {
-  constructor(private readonly eventRepository: Repository<BaseEventEntity>) {}
+  constructor(private readonly eventRepository: Repository<BaseEventModel>) {}
 
   protected async saveOne<T extends BaseEvent>(event: T): Promise<void> {
-    const eventEntity = BaseEventEntity.CreateFromEvent(event);
-    await this.eventRepository.save(eventEntity);
+    const model = BaseEventModel.CreateFromEvent(event);
+    await this.eventRepository.save(model);
   }
 
   protected async saveMany<T extends BaseEvent>(event: T[]): Promise<void> {
-    const eventEntities = BaseEventEntity.CreateFromEvents(event);
-    await this.eventRepository.save(eventEntities);
+    const models = BaseEventModel.CreateFromEvents(event);
+    await this.eventRepository.save(models);
   }
 
   protected async fetchAllEvents(
