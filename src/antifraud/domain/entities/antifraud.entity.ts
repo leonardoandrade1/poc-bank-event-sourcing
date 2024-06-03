@@ -1,4 +1,5 @@
 import { AntifraudModel } from 'src/antifraud/infra/repositories/typeorm/models/antifraud.model';
+import { AccountHolder } from '../value-objects/account-holder.value-object';
 
 export enum AntifraudType {
   ACCOUNT = 'ACCOUNT',
@@ -31,6 +32,10 @@ export class Antifraud {
     return `ACCOUNT#DOCUMENT_NUMBER#${documentNumber}#BRANCH#${accountBranch}#ACCOUNT_NUMBER#${accountNumber}`;
   }
 
+  public static GenerateTransferMoneyId(transactionId: string): string {
+    return `TRANSFER_MONEY#TRANSACTION_ID#${transactionId}`;
+  }
+
   public static CreateAccountCreation(
     documentNumber: string,
     accountBranch: string,
@@ -48,6 +53,25 @@ export class Antifraud {
       documentNumber,
       accountBranch,
       accountNumber,
+      createdAt: new Date().toISOString(),
+    };
+    return antifraud;
+  }
+
+  public static CreateTransferMoney(
+    transactionId: string,
+    amount: number,
+    sender: AccountHolder,
+    receiver: AccountHolder,
+  ): Antifraud {
+    const antifraudId = this.GenerateTransferMoneyId(transactionId);
+    const antifraud = new Antifraud(antifraudId);
+    antifraud._type = AntifraudType.TRANSFER;
+    antifraud._status = AnalysisStatus.IN_ANALYSIS;
+    antifraud._payload = {
+      amount,
+      sender,
+      receiver,
       createdAt: new Date().toISOString(),
     };
     return antifraud;
