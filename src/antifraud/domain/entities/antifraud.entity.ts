@@ -1,3 +1,5 @@
+import { AntifraudEntity } from 'src/antifraud/infra/repositories/typeorm/entities/antifraud.entity';
+
 export enum AntifraudType {
   ACCOUNT = 'ACCOUNT',
   TRANSFER = 'TRANSFER',
@@ -48,6 +50,16 @@ export class Antifraud {
       accountNumber,
       createdAt: new Date().toISOString(),
     };
+    return antifraud;
+  }
+
+  public static FromModel(model: AntifraudEntity): Antifraud {
+    const antifraud = new Antifraud(model.antifraudId);
+    antifraud._type = model.antifraudType;
+    antifraud._status = model.status;
+    antifraud._reason = model.reason;
+    antifraud._analyzedAt = model.analyzedAt;
+    antifraud._payload = model.payload;
     return antifraud;
   }
 
