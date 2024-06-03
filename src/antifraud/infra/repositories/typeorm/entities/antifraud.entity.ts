@@ -3,9 +3,10 @@ import {
   Antifraud,
   AntifraudType,
 } from 'src/antifraud/domain/entities/antifraud.entity';
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, PrimaryGeneratedColumn, Unique } from 'typeorm';
 
 @Entity()
+@Unique(['antifraudId'])
 export class AntifraudEntity {
   @PrimaryGeneratedColumn({ type: 'bigint' })
   id: number;
