@@ -33,10 +33,9 @@ async function runHappyPath(app: INestApplication<any>) {
     .set('Content-Type', 'application/json')
     .send({
       documentNumber,
+      accountNumber: accountDetails.account,
+      accountBranch: accountDetails.branch,
     });
-  accountDetails.documentNumber = responseAntifraudAccCreationBody.document;
-  accountDetails.account = responseAntifraudAccCreationBody.account;
-  accountDetails.branch = responseAntifraudAccCreationBody.branch;
   expect(createFirstStatusCode).toEqual(HttpStatus.CREATED);
   expect(responseAntifraudAccCreationBody.accountNumber).toEqual(
     accountDetails.account,
@@ -64,10 +63,9 @@ async function runReproveAccountWhenDocumentNumberIsOdd(
     .set('Content-Type', 'application/json')
     .send({
       documentNumber,
+      accountNumber: accountDetails.account,
+      accountBranch: accountDetails.branch,
     });
-  accountDetails.documentNumber = responseAntifraudAccCreationBody.document;
-  accountDetails.account = responseAntifraudAccCreationBody.account;
-  accountDetails.branch = responseAntifraudAccCreationBody.branch;
   expect(createFirstStatusCode).toEqual(HttpStatus.CREATED);
   expect(responseAntifraudAccCreationBody.accountNumber).toEqual(
     accountDetails.account,
@@ -87,33 +85,38 @@ async function runReturnPreviousApprovedAnalysisResultForSameAccount(
   };
 
   // Check account creation
-  const { statusCode: createFirstStatusCode } = await request(
-    app.getHttpServer(),
-  )
+  const {
+    body: responseFirstAntifraudAccCreationBody,
+    statusCode: createFirstStatusCode,
+  } = await request(app.getHttpServer())
     .post('/account-creation-analysis')
     .set('Content-Type', 'application/json')
     .send({
       documentNumber,
+      accountNumber: accountDetails.account,
+      accountBranch: accountDetails.branch,
     });
   expect(createFirstStatusCode).toEqual(HttpStatus.CREATED);
   const {
-    body: responseAntifraudAccCreationBody,
+    body: responseSecondAntifraudAccCreationBody,
     statusCode: createSecondStatusCode,
   } = await request(app.getHttpServer())
     .post('/account-creation-analysis')
     .set('Content-Type', 'application/json')
     .send({
       documentNumber,
+      accountNumber: accountDetails.account,
+      accountBranch: accountDetails.branch,
     });
-  accountDetails.documentNumber = responseAntifraudAccCreationBody.document;
-  accountDetails.account = responseAntifraudAccCreationBody.account;
-  accountDetails.branch = responseAntifraudAccCreationBody.branch;
-  expect(createSecondStatusCode).toEqual(HttpStatus.NOT_MODIFIED);
-  expect(responseAntifraudAccCreationBody.accountNumber).toEqual(
-    accountDetails.account,
+  expect(createSecondStatusCode).toEqual(HttpStatus.CREATED);
+  expect(responseFirstAntifraudAccCreationBody.analyzedAt).toEqual(
+    responseSecondAntifraudAccCreationBody.analyzedAt,
   );
-  expect(responseAntifraudAccCreationBody.status).toEqual('Approved');
-  expect(responseAntifraudAccCreationBody.reason).toEqual('');
+  expect(responseFirstAntifraudAccCreationBody.accountNumber).toEqual(
+    responseSecondAntifraudAccCreationBody.accountNumber,
+  );
+  expect(responseSecondAntifraudAccCreationBody.status).toEqual('Approved');
+  expect(responseSecondAntifraudAccCreationBody.reason).toEqual('');
 }
 
 async function runReturnPreviousReprovedAnalysisResultForSameAccount(
@@ -127,31 +130,36 @@ async function runReturnPreviousReprovedAnalysisResultForSameAccount(
   };
 
   // Check account creation
-  const { statusCode: createFirstStatusCode } = await request(
-    app.getHttpServer(),
-  )
+  const {
+    body: responseFirstAntifraudAccCreationBody,
+    statusCode: createFirstStatusCode,
+  } = await request(app.getHttpServer())
     .post('/account-creation-analysis')
     .set('Content-Type', 'application/json')
     .send({
       documentNumber,
+      accountNumber: accountDetails.account,
+      accountBranch: accountDetails.branch,
     });
   expect(createFirstStatusCode).toEqual(HttpStatus.CREATED);
   const {
-    body: responseAntifraudAccCreationBody,
+    body: responseSecondAntifraudAccCreationBody,
     statusCode: createSecondStatusCode,
   } = await request(app.getHttpServer())
     .post('/account-creation-analysis')
     .set('Content-Type', 'application/json')
     .send({
       documentNumber,
+      accountNumber: accountDetails.account,
+      accountBranch: accountDetails.branch,
     });
-  accountDetails.documentNumber = responseAntifraudAccCreationBody.document;
-  accountDetails.account = responseAntifraudAccCreationBody.account;
-  accountDetails.branch = responseAntifraudAccCreationBody.branch;
-  expect(createSecondStatusCode).toEqual(HttpStatus.NOT_MODIFIED);
-  expect(responseAntifraudAccCreationBody.accountNumber).toEqual(
-    accountDetails.account,
+  expect(createSecondStatusCode).toEqual(HttpStatus.CREATED);
+  expect(responseFirstAntifraudAccCreationBody.analyzedAt).toEqual(
+    responseSecondAntifraudAccCreationBody.analyzedAt,
   );
-  expect(responseAntifraudAccCreationBody.status).toEqual('Reproved');
-  expect(responseAntifraudAccCreationBody.reason).not.toEqual('');
+  expect(responseFirstAntifraudAccCreationBody.accountNumber).toEqual(
+    responseSecondAntifraudAccCreationBody.accountNumber,
+  );
+  expect(responseSecondAntifraudAccCreationBody.status).toEqual('Reproved');
+  expect(responseSecondAntifraudAccCreationBody.reason).not.toEqual('');
 }
