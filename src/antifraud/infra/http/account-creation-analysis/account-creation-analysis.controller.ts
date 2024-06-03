@@ -1,28 +1,14 @@
 import { Body, Controller, Post } from '@nestjs/common';
-import { ApiProperty, ApiTags } from '@nestjs/swagger';
-
-export class AccountCreationDTO {
-  @ApiProperty({
-    example: '0001',
-  })
-  accountBranch: string;
-
-  @ApiProperty({
-    example: '000001',
-  })
-  accountNumber: string;
-
-  @ApiProperty({
-    example: '53486705024',
-  })
-  documentNumber: string;
-}
+import { ApiTags } from '@nestjs/swagger';
+import { AccountCreationDTO } from './dto/account-creation.dto';
 
 @ApiTags('Antifraud')
 @Controller('account-creation-analysis')
 export class AntifraudAccountCreationAnalysisController {
   private accountAnalysisMap: Map<string, object> = new Map();
+
   constructor() {}
+
   @Post()
   async accountCreation(@Body() body: AccountCreationDTO) {
     const previousAnalysis = this.accountAnalysisMap.get(body.documentNumber);
