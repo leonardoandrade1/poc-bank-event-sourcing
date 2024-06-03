@@ -2,24 +2,29 @@ import { INestApplication, ValidationPipe } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { AntifraudModule } from 'src/antifraud/antifraud.module';
 import AntifraudAccountCreationScenario from './e2e-scenarios/antifraud-account-creation.scenario';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import {
+  PostgreSqlContainer,
+  StartedPostgreSqlContainer,
+} from '@testcontainers/postgresql';
 
 describe('AntifraudAccountCreationController (e2e)', () => {
   let app: INestApplication;
-  // let postgresContainer: StartedPostgreSqlContainer;
+  let postgresContainer: StartedPostgreSqlContainer;
 
-  // beforeAll(async () => {
-  //   postgresContainer = await new PostgreSqlContainer().start();
-  // }, 60000);
+  beforeAll(async () => {
+    postgresContainer = await new PostgreSqlContainer().start();
+  }, 60000);
 
   beforeEach(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
       imports: [
-        // TypeOrmModule.forRoot({
-        //   type: 'postgres',
-        //   url: postgresContainer.getConnectionUri(),
-        //   autoLoadEntities: true,
-        //   synchronize: true,
-        // }),
+        TypeOrmModule.forRoot({
+          type: 'postgres',
+          url: postgresContainer.getConnectionUri(),
+          autoLoadEntities: true,
+          synchronize: true,
+        }),
         AntifraudModule,
       ],
     }).compile();
@@ -29,10 +34,10 @@ describe('AntifraudAccountCreationController (e2e)', () => {
     await app.init();
   });
 
-  // afterAll(async () => {
-  //   await app.close();
-  //   await postgresContainer.stop();
-  // });
+  afterAll(async () => {
+    await app.close();
+    await postgresContainer.stop();
+  });
 
   it('return account creation approved -> /account-creation-analysis (POST)', async () => {
     await AntifraudAccountCreationScenario(app).happyPath();
