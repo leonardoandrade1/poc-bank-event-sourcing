@@ -87,9 +87,18 @@ async function runReturnPreviousApprovedAnalysisResultForSameAccount(
   };
 
   // Check account creation
+  const { statusCode: createFirstStatusCode } = await request(
+    app.getHttpServer(),
+  )
+    .post('/account-creation-analysis')
+    .set('Content-Type', 'application/json')
+    .send({
+      documentNumber,
+    });
+  expect(createFirstStatusCode).toEqual(HttpStatus.CREATED);
   const {
     body: responseAntifraudAccCreationBody,
-    statusCode: createFirstStatusCode,
+    statusCode: createSecondStatusCode,
   } = await request(app.getHttpServer())
     .post('/account-creation-analysis')
     .set('Content-Type', 'application/json')
@@ -99,7 +108,7 @@ async function runReturnPreviousApprovedAnalysisResultForSameAccount(
   accountDetails.documentNumber = responseAntifraudAccCreationBody.document;
   accountDetails.account = responseAntifraudAccCreationBody.account;
   accountDetails.branch = responseAntifraudAccCreationBody.branch;
-  expect(createFirstStatusCode).toEqual(HttpStatus.CREATED);
+  expect(createSecondStatusCode).toEqual(HttpStatus.NOT_MODIFIED);
   expect(responseAntifraudAccCreationBody.accountNumber).toEqual(
     accountDetails.account,
   );
@@ -118,9 +127,18 @@ async function runReturnPreviousReprovedAnalysisResultForSameAccount(
   };
 
   // Check account creation
+  const { statusCode: createFirstStatusCode } = await request(
+    app.getHttpServer(),
+  )
+    .post('/account-creation-analysis')
+    .set('Content-Type', 'application/json')
+    .send({
+      documentNumber,
+    });
+  expect(createFirstStatusCode).toEqual(HttpStatus.CREATED);
   const {
     body: responseAntifraudAccCreationBody,
-    statusCode: createFirstStatusCode,
+    statusCode: createSecondStatusCode,
   } = await request(app.getHttpServer())
     .post('/account-creation-analysis')
     .set('Content-Type', 'application/json')
@@ -130,7 +148,7 @@ async function runReturnPreviousReprovedAnalysisResultForSameAccount(
   accountDetails.documentNumber = responseAntifraudAccCreationBody.document;
   accountDetails.account = responseAntifraudAccCreationBody.account;
   accountDetails.branch = responseAntifraudAccCreationBody.branch;
-  expect(createFirstStatusCode).toEqual(HttpStatus.CREATED);
+  expect(createSecondStatusCode).toEqual(HttpStatus.NOT_MODIFIED);
   expect(responseAntifraudAccCreationBody.accountNumber).toEqual(
     accountDetails.account,
   );
