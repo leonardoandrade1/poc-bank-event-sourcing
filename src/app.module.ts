@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { BankAccountModule } from './bank-account/bank-account.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { AntifraudModule } from './antifraud/antifraud.module';
 
 @Module({
   imports: [
@@ -23,6 +24,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
       },
     }),
     BankAccountModule,
+    AntifraudModule,
   ],
 })
 export class AppModule {}
