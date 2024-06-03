@@ -1,5 +1,5 @@
 import { Transaction } from '../entities/transaction.entity';
-import { BaseEvent } from '../../common/domain/base.event';
+import { BaseEvent } from '../../../common/domain/base.event';
 
 type WithdrawWasCreateState = {
   transaction: Transaction;

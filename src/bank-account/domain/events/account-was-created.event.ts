@@ -1,5 +1,5 @@
 import { AccountStatus } from '../enums/account-status.enum';
-import { BaseEvent } from '../../common/domain/base.event';
+import { BaseEvent } from '../../../common/domain/base.event';
 
 type AccountWasCreateState = {
   documentNumber: string;

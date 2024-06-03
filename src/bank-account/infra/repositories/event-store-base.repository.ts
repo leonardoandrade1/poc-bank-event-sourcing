@@ -1,6 +1,6 @@
 import { LessThan, Repository } from 'typeorm';
 import { BaseEventModel } from './typeorm/models/base-event.model';
-import { BaseEvent } from 'src/bank-account/common/domain/base.event';
+import { BaseEvent } from 'src/common/domain/base.event';
 
 export abstract class EventStoreBaseRepository {
   constructor(private readonly eventRepository: Repository<BaseEventModel>) {}

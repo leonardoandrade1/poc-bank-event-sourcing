@@ -1,9 +1,9 @@
 import { BadRequestException } from '@nestjs/common';
-import { AggregateRoot } from 'src/bank-account/common/domain/aggregate-root';
+import { AggregateRoot } from 'src/common/domain/aggregate-root';
 import { AccountStatus } from '../enums/account-status.enum';
 import { AccountWasCreated } from '../events/account-was-created.event';
 import { AccountWasDisabled } from '../events/account-was-disabled.event';
-import { BaseEvent } from '../../common/domain/base.event';
+import { BaseEvent } from '../../../common/domain/base.event';
 import { DepositWasCreated } from '../events/deposit-was-created.event';
 import { WithdrawWasCreated } from '../events/withdraw-was-created.event';
 import { Transaction } from './transaction.entity';

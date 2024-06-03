@@ -1,4 +1,4 @@
-import { BaseEvent } from 'src/bank-account/common/domain/base.event';
+import { BaseEvent } from 'src/common/domain/base.event';
 import { Column, Entity, PrimaryGeneratedColumn, Unique } from 'typeorm';
 
 @Entity()

@@ -1,5 +1,5 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
-import { BaseEvent } from 'src/bank-account/common/domain/base.event';
+import { BaseEvent } from 'src/common/domain/base.event';
 
 export interface IEventPublisher {
   publish(events: BaseEvent): Promise<void>;
