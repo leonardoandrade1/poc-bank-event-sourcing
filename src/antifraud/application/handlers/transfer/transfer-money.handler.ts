@@ -1,29 +1,29 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { TransferMoneyCommand } from 'src/antifraud/domain/command/transfer-money.command';
-import {
-  AnalysisStatus,
-  AntifraudType,
-} from 'src/antifraud/domain/entities/antifraud.entity';
+import { Antifraud } from 'src/antifraud/domain/entities/antifraud.entity';
+import { AntifraudRepository } from 'src/antifraud/infra/repositories/antifraud.repository';
 
 @CommandHandler(TransferMoneyCommand)
 export class TransferMoneyCommandHandler
   implements ICommandHandler<TransferMoneyCommand>
 {
-  private transferMoneyAnalysisMap: Map<string, any> = new Map();
+  constructor(private readonly antifraudRepository: AntifraudRepository) {}
 
-  async execute(command: TransferMoneyCommand): Promise<any> {
-    const alreadyAnalyzed = this.transferMoneyAnalysisMap.get(
+  async execute(command: TransferMoneyCommand): Promise<Antifraud> {
+    const antifraudId = Antifraud.GenerateTransferMoneyId(
       command.transactionId,
     );
+    const alreadyAnalyzed =
+      await this.antifraudRepository.fetchByAntifraudId(antifraudId);
     if (alreadyAnalyzed) return alreadyAnalyzed;
-    const shouldApprove = parseInt(command.receiver.documentNumber) % 2 === 0;
-    const analysis = {
-      transaction: command,
-      type: AntifraudType.TRANSFER,
-      status: shouldApprove ? AnalysisStatus.APPROVED : AnalysisStatus.REPROVED,
-      reason: shouldApprove ? '' : 'Reproved by compliance rule',
-    };
-    this.transferMoneyAnalysisMap.set(command.transactionId, analysis);
-    return analysis;
+    const antifraudAnalysis = Antifraud.CreateTransferMoney(
+      command.transactionId,
+      command.amount,
+      command.sender,
+      command.receiver,
+    );
+    antifraudAnalysis.runAnalysis();
+    await this.antifraudRepository.save(antifraudAnalysis);
+    return antifraudAnalysis;
   }
 }
