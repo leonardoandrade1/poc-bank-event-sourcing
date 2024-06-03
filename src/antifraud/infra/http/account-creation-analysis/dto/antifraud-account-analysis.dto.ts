@@ -40,6 +40,11 @@ export class AntifraudAccountAnalysisDTO {
   })
   reason: string;
 
+  @ApiProperty({
+    example: new Date().toISOString(),
+  })
+  analyzedAt: string;
+
   public static FromAntifraud(
     antifraud: Antifraud,
   ): AntifraudAccountAnalysisDTO {
@@ -50,6 +55,7 @@ export class AntifraudAccountAnalysisDTO {
     dto.analysisType = antifraud.type;
     dto.status = antifraud.status;
     dto.reason = antifraud.reason;
+    dto.analyzedAt = antifraud.analyzedAt.toISOString();
     return dto;
   }
 }
