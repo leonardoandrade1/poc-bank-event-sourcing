@@ -3,6 +3,8 @@ import { CommandBus } from '@nestjs/cqrs';
 import { ApiTags } from '@nestjs/swagger';
 import { TransferMoneyCommand } from 'src/antifraud/domain/command/transfer-money.command';
 import { TransferMoneyDTO } from './dto/transfer-money.dto';
+import { Antifraud } from 'src/antifraud/domain/entities/antifraud.entity';
+import { AntifraudTransferMoneyAnalysisDTO } from './dto/antifraud-transfer-money.dto';
 
 @ApiTags('Antifraud')
 @Controller('transfer-analysis')
@@ -11,7 +13,10 @@ export class AntifraudTransferAnalysisController {
 
   @Post()
   async transferMoney(@Body() body: TransferMoneyDTO) {
-    const analysis = await this.commandBus.execute(
+    const antifraudAnalysis = await this.commandBus.execute<
+      TransferMoneyCommand,
+      Antifraud
+    >(
       new TransferMoneyCommand({
         transactionId: body.transactionId,
         amount: body.amount,
@@ -27,6 +32,8 @@ export class AntifraudTransferAnalysisController {
         },
       }),
     );
-    return analysis;
+    const dto =
+      AntifraudTransferMoneyAnalysisDTO.FromAntifraud(antifraudAnalysis);
+    return dto;
   }
 }
