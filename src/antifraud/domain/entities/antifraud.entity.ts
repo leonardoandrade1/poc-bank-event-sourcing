@@ -83,6 +83,10 @@ export class Antifraud {
     return;
   }
 
+  public get id(): string {
+    return this._id;
+  }
+
   public get type(): AntifraudType {
     return this._type;
   }
