@@ -1,16 +1,6 @@
 import { AntifraudModel } from 'src/antifraud/infra/repositories/typeorm/models/antifraud.model';
 import { AccountHolder } from '../value-objects/account-holder.value-object';
-
-export enum AntifraudType {
-  ACCOUNT = 'ACCOUNT',
-  TRANSFER = 'TRANSFER',
-}
-
-export enum AnalysisStatus {
-  IN_ANALYSIS = 'IN_ANALYSIS',
-  APPROVED = 'APPROVED',
-  REPROVED = 'REPROVED',
-}
+import { AnalysisStatus, AntifraudType } from '../enums';
 
 export class Antifraud {
   private _id: string;

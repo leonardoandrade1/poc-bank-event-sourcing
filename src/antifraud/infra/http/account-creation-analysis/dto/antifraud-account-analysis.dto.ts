@@ -1,9 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
-import {
-  AnalysisStatus,
-  Antifraud,
-  AntifraudType,
-} from 'src/antifraud/domain/entities/antifraud.entity';
+import { Antifraud } from 'src/antifraud/domain/entities/antifraud.entity';
+import { AnalysisStatus, AntifraudType } from 'src/antifraud/domain/enums';
 
 export class AntifraudAccountAnalysisDTO {
   @ApiProperty({

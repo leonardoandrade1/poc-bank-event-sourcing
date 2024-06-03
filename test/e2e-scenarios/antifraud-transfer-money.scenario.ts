@@ -1,6 +1,6 @@
 import { faker } from '@faker-js/faker';
 import { HttpStatus, INestApplication } from '@nestjs/common';
-import { AnalysisStatus } from 'src/antifraud/domain/entities/antifraud.entity';
+import { AnalysisStatus } from 'src/antifraud/domain/enums';
 import request from 'supertest';
 
 export default function AntifraudTransferMoneyScenario(

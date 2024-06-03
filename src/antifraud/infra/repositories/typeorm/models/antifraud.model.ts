@@ -1,8 +1,5 @@
-import {
-  AnalysisStatus,
-  Antifraud,
-  AntifraudType,
-} from 'src/antifraud/domain/entities/antifraud.entity';
+import { Antifraud } from 'src/antifraud/domain/entities/antifraud.entity';
+import { AnalysisStatus, AntifraudType } from 'src/antifraud/domain/enums';
 import { Column, Entity, PrimaryGeneratedColumn, Unique } from 'typeorm';
 
 @Entity()
