@@ -1,5 +1,6 @@
 import { faker } from '@faker-js/faker';
 import { HttpStatus, INestApplication } from '@nestjs/common';
+import { AnalysisStatus } from 'src/antifraud/domain/entities/antifraud.entity';
 import request from 'supertest';
 
 export default function AntifraudAccountCreationScenario(
@@ -40,7 +41,9 @@ async function runHappyPath(app: INestApplication<any>) {
   expect(responseAntifraudAccCreationBody.accountNumber).toEqual(
     accountDetails.account,
   );
-  expect(responseAntifraudAccCreationBody.status).toEqual('Approved');
+  expect(responseAntifraudAccCreationBody.status).toEqual(
+    AnalysisStatus.APPROVED,
+  );
   expect(responseAntifraudAccCreationBody.reason).toEqual('');
 }
 
@@ -70,7 +73,9 @@ async function runReproveAccountWhenDocumentNumberIsOdd(
   expect(responseAntifraudAccCreationBody.accountNumber).toEqual(
     accountDetails.account,
   );
-  expect(responseAntifraudAccCreationBody.status).toEqual('Reproved');
+  expect(responseAntifraudAccCreationBody.status).toEqual(
+    AnalysisStatus.REPROVED,
+  );
   expect(responseAntifraudAccCreationBody.reason).not.toEqual('');
 }
 
@@ -115,7 +120,9 @@ async function runReturnPreviousApprovedAnalysisResultForSameAccount(
   expect(responseFirstAntifraudAccCreationBody.accountNumber).toEqual(
     responseSecondAntifraudAccCreationBody.accountNumber,
   );
-  expect(responseSecondAntifraudAccCreationBody.status).toEqual('Approved');
+  expect(responseSecondAntifraudAccCreationBody.status).toEqual(
+    AnalysisStatus.APPROVED,
+  );
   expect(responseSecondAntifraudAccCreationBody.reason).toEqual('');
 }
 
@@ -160,6 +167,8 @@ async function runReturnPreviousReprovedAnalysisResultForSameAccount(
   expect(responseFirstAntifraudAccCreationBody.accountNumber).toEqual(
     responseSecondAntifraudAccCreationBody.accountNumber,
   );
-  expect(responseSecondAntifraudAccCreationBody.status).toEqual('Reproved');
+  expect(responseSecondAntifraudAccCreationBody.status).toEqual(
+    AnalysisStatus.REPROVED,
+  );
   expect(responseSecondAntifraudAccCreationBody.reason).not.toEqual('');
 }

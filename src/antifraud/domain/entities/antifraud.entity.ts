@@ -98,4 +98,8 @@ export class Antifraud {
   public get analyzedAt(): Date {
     return this._analyzedAt;
   }
+
+  public get payload(): Record<string, any> {
+    return this._payload;
+  }
 }
