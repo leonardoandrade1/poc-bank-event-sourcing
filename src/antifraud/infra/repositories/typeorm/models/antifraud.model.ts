@@ -7,7 +7,7 @@ import { Column, Entity, PrimaryGeneratedColumn, Unique } from 'typeorm';
 
 @Entity()
 @Unique(['antifraudId'])
-export class AntifraudEntity {
+export class AntifraudModel {
   @PrimaryGeneratedColumn({ type: 'bigint' })
   id: number;
 
@@ -29,14 +29,14 @@ export class AntifraudEntity {
   @Column({ type: 'json' })
   payload: object;
 
-  static CreateFromModel(model: Antifraud): AntifraudEntity {
-    const entity = new AntifraudEntity();
-    entity.antifraudId = model.id;
-    entity.antifraudType = model.type;
-    entity.status = model.status;
-    entity.reason = model.reason;
-    entity.analyzedAt = model.analyzedAt;
-    entity.payload = model.payload;
-    return entity;
+  static CreateFromEntity(entity: Antifraud): AntifraudModel {
+    const model = new AntifraudModel();
+    model.antifraudId = entity.id;
+    model.antifraudType = entity.type;
+    model.status = entity.status;
+    model.reason = entity.reason;
+    model.analyzedAt = entity.analyzedAt;
+    model.payload = entity.payload;
+    return model;
   }
 }

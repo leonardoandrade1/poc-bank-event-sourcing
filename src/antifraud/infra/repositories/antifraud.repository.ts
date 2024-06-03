@@ -1,18 +1,18 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { AntifraudEntity } from './typeorm/entities/antifraud.entity';
+import { AntifraudModel } from './typeorm/models/antifraud.model';
 import { Repository } from 'typeorm';
 import { Antifraud } from 'src/antifraud/domain/entities/antifraud.entity';
 
 @Injectable()
 export class AntifraudRepository {
   constructor(
-    @InjectRepository(AntifraudEntity)
-    private readonly antifraudRepository: Repository<AntifraudEntity>,
+    @InjectRepository(AntifraudModel)
+    private readonly antifraudRepository: Repository<AntifraudModel>,
   ) {}
 
   async save(antifraud: Antifraud): Promise<void> {
-    const model = AntifraudEntity.CreateFromModel(antifraud);
+    const model = AntifraudModel.CreateFromEntity(antifraud);
     await this.antifraudRepository.save(model);
   }
 

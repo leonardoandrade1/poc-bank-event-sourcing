@@ -1,4 +1,4 @@
-import { AntifraudEntity } from 'src/antifraud/infra/repositories/typeorm/entities/antifraud.entity';
+import { AntifraudModel } from 'src/antifraud/infra/repositories/typeorm/models/antifraud.model';
 
 export enum AntifraudType {
   ACCOUNT = 'ACCOUNT',
@@ -53,7 +53,7 @@ export class Antifraud {
     return antifraud;
   }
 
-  public static FromModel(model: AntifraudEntity): Antifraud {
+  public static FromModel(model: AntifraudModel): Antifraud {
     const antifraud = new Antifraud(model.antifraudId);
     antifraud._type = model.antifraudType;
     antifraud._status = model.status;
