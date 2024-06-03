@@ -69,6 +69,7 @@ export class Antifraud {
     antifraud._type = AntifraudType.TRANSFER;
     antifraud._status = AnalysisStatus.IN_ANALYSIS;
     antifraud._payload = {
+      transactionId,
       amount,
       sender,
       receiver,
