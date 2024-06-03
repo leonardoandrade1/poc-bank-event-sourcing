@@ -2,56 +2,56 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Transaction } from 'src/bank-account/domain/entities/transaction.entity';
 import { Repository } from 'typeorm';
-import { TransactionEntity } from './typeorm/entities/transaction.entity';
+import { TransactionModel } from './typeorm/models/transaction.model';
 
 @Injectable()
 export class TransactionRepository {
   constructor(
-    @InjectRepository(TransactionEntity)
-    private readonly transactionRepository: Repository<TransactionEntity>,
+    @InjectRepository(TransactionModel)
+    private readonly transactionRepository: Repository<TransactionModel>,
   ) {}
 
   async save(transaction: Transaction): Promise<void> {
-    const entity = TransactionEntity.CreateFromModel(transaction);
-    await this.transactionRepository.save(entity);
+    const model = TransactionModel.CreateFromEntity(transaction);
+    await this.transactionRepository.save(model);
   }
 
   async fetchAllTransactionsFromAggregate(
     aggregateId: string,
   ): Promise<Array<Transaction>> {
-    const entityTransactions = await this.transactionRepository.find({
+    const modelTransactions = await this.transactionRepository.find({
       where: {
         aggregateId,
       },
     });
 
-    return entityTransactions.map((entity) =>
+    return modelTransactions.map((model) =>
       Transaction.Restore(
-        entity.aggregateId,
-        entity.transactionId,
-        entity.status,
-        entity.amount,
-        entity.description,
-        entity.created,
+        model.aggregateId,
+        model.transactionId,
+        model.status,
+        model.amount,
+        model.description,
+        model.created,
       ),
     );
   }
 
   async fetchTransaction(transactionId: string): Promise<Transaction> {
-    const entityTransaction = await this.transactionRepository.findOne({
+    const modelTransaction = await this.transactionRepository.findOne({
       where: {
         transactionId,
       },
     });
 
-    if (!entityTransaction) return undefined;
+    if (!modelTransaction) return undefined;
     return Transaction.Restore(
-      entityTransaction.aggregateId,
-      entityTransaction.transactionId,
-      entityTransaction.status,
-      entityTransaction.amount,
-      entityTransaction.description,
-      entityTransaction.created,
+      modelTransaction.aggregateId,
+      modelTransaction.transactionId,
+      modelTransaction.status,
+      modelTransaction.amount,
+      modelTransaction.description,
+      modelTransaction.created,
     );
   }
 
@@ -59,21 +59,21 @@ export class TransactionRepository {
     aggregateId: string,
     transactionId: string,
   ): Promise<Transaction> {
-    const entityTransaction = await this.transactionRepository.findOne({
+    const modelTransaction = await this.transactionRepository.findOne({
       where: {
         aggregateId,
         transactionId,
       },
     });
 
-    if (!entityTransaction) return undefined;
+    if (!modelTransaction) return undefined;
     return Transaction.Restore(
-      entityTransaction.aggregateId,
-      entityTransaction.transactionId,
-      entityTransaction.status,
-      entityTransaction.amount,
-      entityTransaction.description,
-      entityTransaction.created,
+      modelTransaction.aggregateId,
+      modelTransaction.transactionId,
+      modelTransaction.status,
+      modelTransaction.amount,
+      modelTransaction.description,
+      modelTransaction.created,
     );
   }
 }

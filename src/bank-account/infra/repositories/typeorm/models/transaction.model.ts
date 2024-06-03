@@ -12,7 +12,7 @@ export class ColumnNumericTransformer {
 }
 
 @Entity()
-export class TransactionEntity {
+export class TransactionModel {
   @PrimaryGeneratedColumn({ type: 'bigint' })
   id: number;
 
@@ -34,14 +34,14 @@ export class TransactionEntity {
   @Column()
   description: string;
 
-  static CreateFromModel(model: Transaction): TransactionEntity {
-    const entity = new TransactionEntity();
-    entity.transactionId = model.transactionId;
-    entity.aggregateId = model.aggregateId;
-    entity.status = model.status;
-    entity.amount = model.amount;
-    entity.created = model.created;
-    entity.description = model.description;
-    return entity;
+  static CreateFromEntity(entity: Transaction): TransactionModel {
+    const model = new TransactionModel();
+    model.transactionId = entity.transactionId;
+    model.aggregateId = entity.aggregateId;
+    model.status = entity.status;
+    model.amount = entity.amount;
+    model.created = entity.created;
+    model.description = entity.description;
+    return model;
   }
 }

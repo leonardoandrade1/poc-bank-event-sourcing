@@ -3,7 +3,7 @@ import { EventStoreBaseRepository } from './event-store-base.repository';
 import { Account } from 'src/bank-account/domain/entities/account.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { BaseEventModel } from './typeorm/entities/base-event.entity';
+import { BaseEventModel } from './typeorm/models/base-event.model';
 import { EventPublisher } from '../publisher/base-event-publisher';
 
 @Injectable()
