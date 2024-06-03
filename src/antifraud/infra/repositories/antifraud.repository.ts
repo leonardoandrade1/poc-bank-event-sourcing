@@ -15,4 +15,13 @@ export class AntifraudRepository {
     const model = AntifraudEntity.CreateFromModel(antifraud);
     await this.antifraudRepository.save(model);
   }
+
+  async fetchByAntifraudId(antifraudId: string): Promise<Antifraud> {
+    const model = await this.antifraudRepository.findOne({
+      where: {
+        antifraudId,
+      },
+    });
+    return Antifraud.FromModel(model);
+  }
 }
