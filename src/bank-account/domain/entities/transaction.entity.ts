@@ -63,6 +63,23 @@ export class Transaction {
     return transaction;
   }
 
+  public static StartTransferMoney(
+    aggregateId: string,
+    transactionId: string,
+    amount: number,
+    description: string,
+  ): Transaction {
+    const transaction = new Transaction();
+    transaction.aggregateId = aggregateId;
+    transaction.transactionId = this.GetTransactionId(transactionId);
+    transaction.status = TransactionStatus.IN_ANALYSIS;
+    transaction.amount = amount;
+    transaction.description =
+      description ?? `Transfer dated ${new Date().toISOString()}`;
+    transaction.created = new Date();
+    return transaction;
+  }
+
   public static Restore(
     aggregateId: string,
     transactionId: string,
@@ -79,6 +96,26 @@ export class Transaction {
     transaction.description = description;
     transaction.created = created;
     return transaction;
+  }
+
+  isApproved(): boolean {
+    return this.status === TransactionStatus.APPROVED;
+  }
+
+  isReproved(): boolean {
+    return this.status === TransactionStatus.REPROVED;
+  }
+
+  isCompleted(): boolean {
+    return this.status === TransactionStatus.COMPLETED;
+  }
+
+  approve(): void {
+    this.status = TransactionStatus.APPROVED;
+  }
+
+  complete(): void {
+    this.status = TransactionStatus.COMPLETED;
   }
 
   belongsTo(accountAggregate: string): boolean {

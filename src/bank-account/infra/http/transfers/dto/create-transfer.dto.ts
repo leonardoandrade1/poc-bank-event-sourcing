@@ -44,9 +44,11 @@ export class CreateTransferDto {
   @IsNotEmpty()
   description: string;
 
+  @ApiProperty()
   @ValidateNested()
   sender: AccountHolder;
 
+  @ApiProperty()
   @ValidateNested()
   receiver: AccountHolder;
 }

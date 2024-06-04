@@ -7,6 +7,10 @@ import { BaseEvent } from '../../../common/domain/base.event';
 import { DepositWasCreated } from '../events/deposit-was-created.event';
 import { WithdrawWasCreated } from '../events/withdraw-was-created.event';
 import { Transaction } from './transaction.entity';
+import { TransferWasCreated } from '../events/transfer-was-created.event';
+import { TransferWasApproved } from '../events/transfer-was-approved.event';
+import { TransferWasReproved } from '../events/transfer-was-reproved.event';
+import { TransferWasDeposited } from '../events/transfer-was-deposited.event';
 
 export class Account extends AggregateRoot {
   private _branch: string;
@@ -99,6 +103,57 @@ export class Account extends AggregateRoot {
     return transaction;
   }
 
+  transfer(amount: number, description?: string): Transaction {
+    if (this.balance < amount) {
+      throw new BadRequestException(
+        'Cannot withdraw value more than current balance',
+      );
+    }
+    const transaction = Transaction.StartTransferMoney(
+      this.id,
+      undefined,
+      amount,
+      description,
+    );
+    const transferWasCreated = new TransferWasCreated(
+      this.id,
+      this.version,
+      transaction,
+    );
+    this.raiseEvent(transferWasCreated);
+    return transaction;
+  }
+
+  completeTransfer(transfer: Transaction): Transaction {
+    if (transfer.isApproved()) {
+      const transferWasApproved = new TransferWasApproved(
+        this.id,
+        this.version,
+        transfer,
+      );
+      this.raiseEvent(transferWasApproved);
+    } else if (transfer.isReproved()) {
+      const transferWasReproved = new TransferWasReproved(
+        this.id,
+        this.version,
+        transfer,
+      );
+      this.raiseEvent(transferWasReproved);
+    }
+    transfer.complete();
+    return transfer;
+  }
+
+  depositTransfer(transfer: Transaction): void {
+    const transferWasDeposited = new TransferWasDeposited(
+      this.id,
+      this.version,
+      transfer,
+    );
+    this.raiseEvent(transferWasDeposited);
+    return;
+  }
+
   disable(): void {
     if (this.isDisabled())
       throw new BadRequestException(
@@ -118,6 +173,18 @@ export class Account extends AggregateRoot {
         break;
       case WithdrawWasCreated.EventName:
         this.applyWithdrawWasCreatedEvent(event as WithdrawWasCreated);
+        break;
+      case TransferWasCreated.EventName:
+        this.applyTransferWasCreatedEvent(event as TransferWasCreated);
+        break;
+      case TransferWasApproved.EventName:
+        this.applyTransferWasApprovedEvent(event as TransferWasApproved);
+        break;
+      case TransferWasReproved.EventName:
+        this.applyTransferWasReprovedEvent(event as TransferWasReproved);
+        break;
+      case TransferWasDeposited.EventName:
+        this.applyTransferWasDepositedEvent(event as TransferWasDeposited);
         break;
       case AccountWasDisabled.EventName:
         this.applyAccountWasDisabledEvent(event as AccountWasDisabled);
@@ -187,6 +254,56 @@ export class Account extends AggregateRoot {
     );
     this._transactions.push(transaction);
     this._balance = this.balance - transaction.amount;
+  }
+
+  private applyTransferWasCreatedEvent(event: TransferWasCreated): void {
+    const transaction = Transaction.Restore(
+      this.id,
+      event.state.transaction.transactionId,
+      event.state.transaction.status,
+      event.state.transaction.amount,
+      event.state.transaction.description,
+      event.state.transaction.created,
+    );
+    this._transactions.push(transaction);
+  }
+
+  private applyTransferWasApprovedEvent(event: TransferWasApproved): void {
+    const transaction = Transaction.Restore(
+      this.id,
+      event.state.transaction.transactionId,
+      event.state.transaction.status,
+      event.state.transaction.amount,
+      event.state.transaction.description,
+      event.state.transaction.created,
+    );
+    this._transactions.push(transaction);
+    this._balance = this.balance - transaction.amount;
+  }
+
+  private applyTransferWasReprovedEvent(event: TransferWasReproved): void {
+    const transaction = Transaction.Restore(
+      this.id,
+      event.state.transaction.transactionId,
+      event.state.transaction.status,
+      event.state.transaction.amount,
+      event.state.transaction.description,
+      event.state.transaction.created,
+    );
+    this._transactions.push(transaction);
+  }
+
+  private applyTransferWasDepositedEvent(event: TransferWasDeposited): void {
+    const transaction = Transaction.Restore(
+      this.id,
+      event.state.transaction.transactionId,
+      event.state.transaction.status,
+      event.state.transaction.amount,
+      event.state.transaction.description,
+      event.state.transaction.created,
+    );
+    this._transactions.push(transaction);
+    this._balance = this.balance + transaction.amount;
   }
 
   private applyAccountWasDisabledEvent(event: AccountWasDisabled): void {

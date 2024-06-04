@@ -28,20 +28,18 @@ export class TransferMoneyCommandHandler
       );
     if (!toAccount) throw new NotFoundException('Receiver account not found');
     // TODO: init transfer money process and complete it after return of antifraud
-    const transaction = fromAccount.withdraw(
+    const transaction = fromAccount.transfer(
       command.amount,
       command.description,
     );
-    toAccount.deposit(
-      command.amount,
-      command.description,
-      transaction.transactionId,
-    );
+    transaction.approve();
+    const transactionApproved = fromAccount.completeTransfer(transaction);
+    toAccount.depositTransfer(transactionApproved);
     await this.accountEventStoreRepository.save(fromAccount);
     await this.accountEventStoreRepository.save(toAccount);
-    await this.transactionRepository.save(transaction);
+    await this.transactionRepository.save(transactionApproved);
     fromAccount.commitEvents();
     toAccount.commitEvents();
-    return transaction;
+    return transactionApproved;
   }
 }

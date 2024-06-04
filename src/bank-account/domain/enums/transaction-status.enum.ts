@@ -1,6 +1,6 @@
 export enum TransactionStatus {
   IN_ANALYSIS = 'IN_ANALYSIS',
-  ACTIVE = 'APPROVED',
-  INATIVE = 'REPROVED',
+  APPROVED = 'APPROVED',
+  REPROVED = 'REPROVED',
   COMPLETED = 'COMPLETED',
 }
