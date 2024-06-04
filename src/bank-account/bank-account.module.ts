@@ -15,11 +15,39 @@ import { TransactionsController } from './infra/http/transactions/transactions.c
 import { CqrsModule } from '@nestjs/cqrs';
 import { CommandHandlers } from './application/handlers/commands';
 import { QueryHandlers } from './application/handlers/queries';
+import { ClientsModule, Transport } from '@nestjs/microservices';
 
 @Module({
   imports: [
     CqrsModule.forRoot(),
     TypeOrmModule.forFeature([BaseEventModel, TransactionModel]),
+    ClientsModule.registerAsync({
+      clients: [
+        {
+          name: 'KAFKA_CLIENT',
+          useFactory: () => {
+            return {
+              transport: Transport.KAFKA,
+              options: {
+                run: {
+                  autoCommit: false,
+                },
+                client: {
+                  clientId: 'bank-account-module-clientId',
+                  brokers: ['localhost:29092'],
+                },
+                consumer: {
+                  groupId: 'bank-account-module-groupdId',
+                },
+                subscribe: {
+                  fromBeginning: true,
+                },
+              },
+            };
+          },
+        },
+      ],
+    }),
   ],
   controllers: [AccountController, TransferController, TransactionsController],
   providers: [
