@@ -1,0 +1,1 @@
+export const KAFKA_PROVIDER = 'KAFKA_CLIENT';

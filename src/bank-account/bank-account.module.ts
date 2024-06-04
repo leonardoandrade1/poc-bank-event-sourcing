@@ -1,21 +1,22 @@
 import { Module } from '@nestjs/common';
+import { CqrsModule } from '@nestjs/cqrs';
+import { ClientsModule, Transport } from '@nestjs/microservices';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { KAFKA_PROVIDER } from 'src/common/provider.constants';
+import { CommandHandlers } from './application/handlers/commands';
+import { QueryHandlers } from './application/handlers/queries';
 import { AccountController } from './infra/http/accounts/account.controller';
-import { AccountEventStoreRepository } from './infra/repositories/account-event-store.repository';
-import { BaseEventModel } from './infra/repositories/typeorm/models/base-event.model';
+import { TransactionsController } from './infra/http/transactions/transactions.controller';
 import { TransferController } from './infra/http/transfers/transfer.controller';
 import {
   EventPublisher,
   IEventPublisher,
-  LoggerEventPublisher,
+  KafkaEventPublisher,
 } from './infra/publisher/base-event-publisher';
-import { TransactionModel } from './infra/repositories/typeorm/models/transaction.model';
+import { AccountEventStoreRepository } from './infra/repositories/account-event-store.repository';
 import { TransactionRepository } from './infra/repositories/transaction.repository';
-import { TransactionsController } from './infra/http/transactions/transactions.controller';
-import { CqrsModule } from '@nestjs/cqrs';
-import { CommandHandlers } from './application/handlers/commands';
-import { QueryHandlers } from './application/handlers/queries';
-import { ClientsModule, Transport } from '@nestjs/microservices';
+import { BaseEventModel } from './infra/repositories/typeorm/models/base-event.model';
+import { TransactionModel } from './infra/repositories/typeorm/models/transaction.model';
 
 @Module({
   imports: [
@@ -24,7 +25,7 @@ import { ClientsModule, Transport } from '@nestjs/microservices';
     ClientsModule.registerAsync({
       clients: [
         {
-          name: 'KAFKA_CLIENT',
+          name: KAFKA_PROVIDER,
           useFactory: () => {
             return {
               transport: Transport.KAFKA,
@@ -56,7 +57,8 @@ import { ClientsModule, Transport } from '@nestjs/microservices';
     EventPublisher,
     {
       provide: IEventPublisher,
-      useClass: LoggerEventPublisher,
+      // useClass: LoggerEventPublisher,
+      useClass: KafkaEventPublisher,
     },
     ...CommandHandlers,
     ...QueryHandlers,

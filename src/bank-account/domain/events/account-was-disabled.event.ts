@@ -5,7 +5,7 @@ type AccountWasDisableState = {
   status: AccountStatus;
 };
 export class AccountWasDisabled extends BaseEvent<AccountWasDisableState> {
-  static EventName = 'ACCOUNT_WAS_CREATED';
+  static EventName = 'ACCOUNT_WAS_DISABLED';
   eventName = AccountWasDisabled.EventName;
 
   constructor(aggregateId: string, aggregateVersion: number) {
