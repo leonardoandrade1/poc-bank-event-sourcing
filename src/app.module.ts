@@ -6,7 +6,6 @@ import { AntifraudModule } from './antifraud/antifraud.module';
 
 @Module({
   imports: [
-    ConfigModule.forRoot({ isGlobal: true }),
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
       inject: [ConfigService],

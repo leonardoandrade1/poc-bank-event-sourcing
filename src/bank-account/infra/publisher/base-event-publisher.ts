@@ -86,6 +86,7 @@ export class KafkaEventPublisher implements IEventPublisher {
       aggregateVersion: event.aggregateVersion.toString(),
       createdAt: event.created.toISOString(),
     };
+    // https://github.com/KaoutharAsma/nestjs-kafka-saga-pattern/blob/main/order/src/usecases/create-order/saga/steps/update-stock.step.ts
     const topicName =
       this.eventTopicMapping.get(event.eventName) ?? 'default.topic.kafka';
     const observable = await this.kafka.emit(topicName, {

@@ -5,24 +5,36 @@ import {
   PostgreSqlContainer,
   StartedPostgreSqlContainer,
 } from '@testcontainers/postgresql';
+import { KafkaContainer, StartedKafkaContainer } from '@testcontainers/kafka';
 import { BankAccountModule } from '../src/bank-account/bank-account.module';
 import CreateAccountScenario from './e2e-scenarios/create-account.scenario';
 import CreateAndWaitAccountBeActiveScenario from './e2e-scenarios/create-and-wait-account-be-active.scenario';
 import DepositAndWithdrawSameAmountScenario from './e2e-scenarios/deposit-and-withdraw-same-amount.scenario';
 import DepositMoneyScenario from './e2e-scenarios/deposit-money.scenario';
 import DisableAccountScenario from './e2e-scenarios/disable-account.scenario';
+import { ConfigModule } from '@nestjs/config';
 
 describe('AccountController (e2e)', () => {
+  jest.setTimeout(240_000);
   let app: INestApplication;
   let postgresContainer: StartedPostgreSqlContainer;
+  let kafkaContainer: StartedKafkaContainer;
 
   beforeAll(async () => {
     postgresContainer = await new PostgreSqlContainer().start();
-  }, 60000);
-
-  beforeEach(async () => {
+    kafkaContainer = await new KafkaContainer().withExposedPorts(9093).start();
     const moduleFixture: TestingModule = await Test.createTestingModule({
       imports: [
+        ConfigModule.forRoot({
+          ignoreEnvFile: true,
+          load: [
+            () => ({
+              KAFKA_BROKER: `localhost:${kafkaContainer.getMappedPort(9093)}`,
+              KAFKA_BANK_MODULE_CLIENT_ID: 'bank-account-client-id',
+              KAFKA_BANK_MODULE_GROUP_ID: 'bank-account-group-id',
+            }),
+          ],
+        }),
         TypeOrmModule.forRoot({
           type: 'postgres',
           url: postgresContainer.getConnectionUri(),
@@ -41,6 +53,7 @@ describe('AccountController (e2e)', () => {
   afterAll(async () => {
     await app.close();
     await postgresContainer.stop();
+    await kafkaContainer.stop();
   });
 
   describe('create account', () => {
